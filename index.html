@@ -45,10 +45,7 @@
       const el = this;
       requestAnimationFrame(function () {
         const box = new THREE.Box3().setFromObject(el.object3D);
-        // カードの底辺を検出画像面(z=0)に合わせる
-        if (box.min.z < 0) {
-          el.object3D.position.z -= box.min.z;
-        }
+        el.setAttribute('position', { x: 0, y: 0, z: -box.min.z });
       });
     });
   </script>
