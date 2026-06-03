@@ -70,6 +70,24 @@
         if (isFinite(box.min.z)) {
           el.setAttribute('position', { x: 0, y: 0, z: -box.min.z });
         }
+
+        // BLEND透過マテリアルが同一Z深度に重なるためThree.jsが深度ソートできず
+        // primitive宣言順（逆順）で描画されてしまう。renderOrderを明示的に設定して修正。
+        // モデルのY軸が「前面→背面」の積層方向なので、Y昇順 = 背面から前面の描画順。
+        const meshes = [];
+        obj.traverse(function(node) {
+          if (!node.isMesh || !node.geometry) return;
+          node.geometry.computeBoundingBox();
+          const y = (node.geometry.boundingBox.min.y + node.geometry.boundingBox.max.y) / 2;
+          meshes.push({ node: node, y: y });
+        });
+        meshes.sort(function(a, b) { return a.y - b.y; });
+        meshes.forEach(function(item, i) {
+          item.node.renderOrder = i;
+          if (item.node.material && item.node.material.transparent) {
+            item.node.material.depthWrite = false;
+          }
+        });
       });
     });
   </script>
