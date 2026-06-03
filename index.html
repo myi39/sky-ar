@@ -30,13 +30,25 @@
     <a-light type="directional" position="1 2 1" intensity="1"></a-light>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model
-        src="#model"
-        position="0 0 0"
-        scale="30 30 30"
-        rotation="0 0 0"
-      ></a-gltf-model>
+      <a-gltf-model id="card-model" src="#model" scale="30 30 30"></a-gltf-model>
     </a-entity>
   </a-scene>
+
+  <script>
+    document.querySelector('#card-model').addEventListener('model-loaded', function () {
+      const mesh = this.getObject3D('mesh');
+      this.object3D.updateMatrixWorld(true);
+
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+
+      // rotation="90 0 0" で glTF の Z 方向（カードの高さ）が MindAR の Z 方向（上）になる
+      // → カード底辺が画像面に揃うよう、Z に高さの半分だけオフセット
+      const offset = size.z / 2;
+      this.setAttribute('rotation', '90 0 0');
+      this.setAttribute('position', `0 0 ${offset.toFixed(3)}`);
+    });
+  </script>
 </body>
 </html>
