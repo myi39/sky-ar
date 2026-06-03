@@ -86,6 +86,7 @@
           item.node.renderOrder = i;
           if (item.node.material && item.node.material.transparent) {
             item.node.material.depthWrite = false;
+            item.node.material.depthTest = false;
           }
         });
       });
