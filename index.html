@@ -40,24 +40,16 @@
     </a-entity>
   </a-scene>
 
-  <div id="debug" style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.75);color:#0f0;font-family:monospace;font-size:13px;padding:8px;z-index:9999;pointer-events:none"></div>
-
   <script>
-    function dbg(msg) {
-      document.getElementById('debug').innerHTML += msg + '<br>';
-      console.log(msg);
-    }
-
     document.querySelector('#card-model').addEventListener('model-loaded', function () {
-      dbg('model-loaded');
       const el = this;
       requestAnimationFrame(function () {
         const obj = el.object3D;
         const box = new THREE.Box3();
 
-        // MindARの親エンティティがmatrixWorldをNaNにするため、
+        // MindARの親エンティティがmatrixWorldをNaNにするため
         // setFromObject（ワールド行列使用）は使えない。
-        // obj自身のローカル行列だけを使って計算する。
+        // obj自身のローカル行列だけでバウンディングボックスを計算する。
         obj.traverse(function(node) {
           if (!node.isMesh || !node.geometry) return;
           node.geometry.computeBoundingBox();
@@ -75,14 +67,8 @@
           box.union(node.geometry.boundingBox.clone().applyMatrix4(mat));
         });
 
-        dbg('min.z=' + box.min.z.toFixed(3));
-        dbg('max.z=' + box.max.z.toFixed(3));
-
         if (isFinite(box.min.z)) {
           el.setAttribute('position', { x: 0, y: 0, z: -box.min.z });
-          dbg('z offset=' + (-box.min.z).toFixed(3));
-        } else {
-          dbg('ERROR: no geometry found');
         }
       });
     });
