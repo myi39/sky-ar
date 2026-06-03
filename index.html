@@ -49,19 +49,40 @@
     }
 
     document.querySelector('#card-model').addEventListener('model-loaded', function () {
-      dbg('model-loaded OK');
+      dbg('model-loaded');
       const el = this;
       requestAnimationFrame(function () {
-        const box = new THREE.Box3().setFromObject(el.object3D);
+        const obj = el.object3D;
+        const box = new THREE.Box3();
+
+        // MindARの親エンティティがmatrixWorldをNaNにするため、
+        // setFromObject（ワールド行列使用）は使えない。
+        // obj自身のローカル行列だけを使って計算する。
+        obj.traverse(function(node) {
+          if (!node.isMesh || !node.geometry) return;
+          node.geometry.computeBoundingBox();
+          if (!node.geometry.boundingBox) return;
+
+          const mat = new THREE.Matrix4();
+          let cur = node;
+          while (cur) {
+            cur.updateMatrix();
+            mat.premultiply(cur.matrix);
+            if (cur === obj) break;
+            cur = cur.parent;
+          }
+
+          box.union(node.geometry.boundingBox.clone().applyMatrix4(mat));
+        });
+
         dbg('min.z=' + box.min.z.toFixed(3));
         dbg('max.z=' + box.max.z.toFixed(3));
-        dbg('offset=' + (-box.min.z).toFixed(3));
 
         if (isFinite(box.min.z)) {
           el.setAttribute('position', { x: 0, y: 0, z: -box.min.z });
-          dbg('position.z set to ' + (-box.min.z).toFixed(3));
+          dbg('z offset=' + (-box.min.z).toFixed(3));
         } else {
-          dbg('ERROR: box.min.z is not finite');
+          dbg('ERROR: no geometry found');
         }
       });
     });
