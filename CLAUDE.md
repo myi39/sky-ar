@@ -8,7 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 動作確認
 
-カメラや AR Quick Look / Scene Viewer の起動は端末実機でしか確認できない。動作確認は GitHub にプッシュして GitHub Pages（https://myi39.github.io/sky-ar/）で行う。
+一覧・個別ページの描画やプラットフォーム判定、リンクの組み立てはローカルの静的サーバーで確認できる。ページ自体は `getUserMedia` を呼ばず、カメラは OS の AR ビューアが扱うため、HTTPS 必須という制約はない。
+
+一方、AR Quick Look（iPhone）・Scene Viewer（Android）が実際に起動して設置まで動くかは実機でしか確認できない。ローカルサーバーを同じネットワーク上の端末から開ければよく、GitHub Pages である必要はない。公開先は GitHub Pages（https://myi39.github.io/sky-ar/）。
 
 ## 主要ファイル
 
