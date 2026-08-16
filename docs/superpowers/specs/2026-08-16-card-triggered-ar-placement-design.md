@@ -71,7 +71,9 @@ URL が状態を持つ。`?c=<id>` があれば個別画面、なければ一覧
 
 ```
 sky-ar/
-├── index.html              入口。?c=<id> があれば個別画面、なければ一覧
+├── index.html              ページの骨格と CSS。ロジックは持たない
+├── app.js                  URL 分岐・一覧描画・個別画面描画・端末判定
+├── cards.js                カード ID の配列だけを持つ生成物
 ├── images/
 │   ├── <id>_front.jpg      カード画像 38 枚（7.6MB）
 │   └── thumb/<id>.jpg      一覧用サムネイル 38 枚（新規生成・約 1MB）
@@ -81,8 +83,12 @@ sky-ar/
 ├── tools/
 │   ├── glb2usdz.py         Blender 変換スクリプト（GLB 1 体 → USDZ 1 体）
 │   ├── build_usdz.ps1      3d/glb/*.glb を全て 3d/usdz/ へ変換
-│   └── make_thumbs.ps1     images/*_front.jpg から images/thumb/ を生成
-└── docs/superpowers/specs/ 本書
+│   ├── make_thumbs.ps1     images/*_front.jpg から images/thumb/ を生成
+│   ├── make_cards.ps1      3d/glb/ の一覧から cards.js を生成
+│   └── verify.ps1          ファイル数・命名・対応関係の不変条件を検査
+└── docs/superpowers/
+    ├── specs/              本書
+    └── plans/              実装計画
 ```
 
 USDZ はリポジトリにコミットする（GitHub Pages はビルドを走らせないため）。結果としてリポジトリは約 170MB になる。GitHub Pages の上限 1GB には余裕がある。ユーザーが 1 回の AR 起動で落とすのは約 2MB。
