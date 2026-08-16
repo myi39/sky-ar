@@ -15,11 +15,6 @@ function el(tag, props, children) {
 }
 
 function renderList(root) {
-  const header = el('header', {}, [
-    el('h1', { textContent: 'sky-ar' }),
-    el('p', { className: 'lead', textContent: 'カードを選ぶと AR で表示できます' })
-  ]);
-
   const grid = el('div', { className: 'grid' }, CARDS.map(function (id) {
     return el('a', { className: 'card', href: '?c=' + encodeURIComponent(id) }, [
       el('img', { src: './images/thumb/' + id + '.jpg', alt: cardTitle(id), loading: 'lazy' }),
@@ -27,7 +22,6 @@ function renderList(root) {
     ]);
   }));
 
-  root.appendChild(header);
   root.appendChild(grid);
 }
 
@@ -50,7 +44,7 @@ function arLink(id) {
     // exactly one child element, which must be an <img>.
     return el('a', { className: 'launch', rel: 'ar', href: './3d/usdz/' + id + '.usdz' }, [
       el('img', { src: './images/thumb/' + id + '.jpg', alt: '' }),
-      document.createTextNode('AR で表示')
+      document.createTextNode('AR')
     ]);
   }
 
@@ -65,7 +59,7 @@ function arLink(id) {
       '#Intent;scheme=https;package=com.google.ar.core;' +
       'action=android.intent.action.VIEW;' +
       'S.browser_fallback_url=' + fallback + ';end;';
-    return el('a', { className: 'launch', href: intent, textContent: 'AR で表示' });
+    return el('a', { className: 'launch', href: intent, textContent: 'AR' });
   }
 
   return null;
@@ -79,23 +73,15 @@ function renderDetail(root, id) {
   const link = arLink(id);
   if (link) {
     parts.push(link);
-    parts.push(el('p', {
-      className: 'note',
-      textContent: 'ボタンを押すと AR ビューアが開きます。床や机に向けると設置できます。'
-    }));
   } else {
+    // Kept only for platforms with no AR viewer. Without it the page is a
+    // dead end: no button and no reason given.
     parts.push(el('p', {
       className: 'note',
       textContent: 'AR 表示は iPhone / Android でのみ利用できます。'
     }));
   }
 
-  parts.push(el('a', { className: 'back', href: './', textContent: '← 一覧にもどる' }));
-
-  root.appendChild(el('header', {}, [
-    el('h1', { textContent: cardTitle(id) }),
-    el('p', { className: 'lead', textContent: 'sky-ar' })
-  ]));
   root.appendChild(el('div', { className: 'detail' }, parts));
 }
 
