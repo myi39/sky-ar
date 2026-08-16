@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>USDZ 変換検証</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif;
+      background: #14161a;
+      color: #e8eaed;
+      padding: 2rem 1.25rem 4rem;
+      line-height: 1.7;
+    }
+    main { max-width: 32rem; margin: 0 auto; }
+    h1 { font-size: 1.25rem; letter-spacing: .02em; margin-bottom: .25rem; }
+    .sub { color: #8b939e; font-size: .875rem; margin-bottom: 2rem; }
+    a[rel="ar"] {
+      display: block;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #1e2126;
+      border: 1px solid #2c3038;
+    }
+    a[rel="ar"] img { display: block; width: 100%; height: auto; }
+    .hint {
+      margin-top: 1rem;
+      padding: .875rem 1rem;
+      background: #1e2126;
+      border-left: 3px solid #4a9eff;
+      border-radius: 4px;
+      font-size: .875rem;
+    }
+    ol { margin: 1.5rem 0 0 1.25rem; font-size: .875rem; color: #b8bfc8; }
+    li { margin-bottom: .5rem; }
+    code { background: #23272e; padding: .1em .4em; border-radius: 3px; font-size: .85em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>USDZ 変換検証</h1>
+    <p class="sub">01_Mob / Blender 5.1 で変換 / 実寸 10.3 × 15.0 cm</p>
+
+    <a rel="ar" href="./3d/01_Mob.usdz">
+      <img src="./images/01_Mob_front.jpg" alt="01_Mob のカード画像">
+    </a>
+
+    <p class="hint">画像をタップすると AR Quick Look が開きます。</p>
+
+    <ol>
+      <li>テクスチャが出るか（真っ白なら変換失敗）</li>
+      <li>透過が生きているか（背景が黒く潰れていないか）</li>
+      <li>レイヤーの前後関係が正しいか（キラキラが手前か）</li>
+      <li>向きが正しいか（立っているか、寝ていないか）</li>
+      <li>「AR」に切り替えて床に置けるか、大きさは妥当か</li>
+    </ol>
+  </main>
+</body>
+</html>
