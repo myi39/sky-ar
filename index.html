@@ -2,95 +2,91 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>sky-ar</title>
   <style>
-    * { margin: 0; padding: 0; }
-    body { overflow: hidden; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #14161a;
+      --panel: #1e2126;
+      --line: #2c3038;
+      --text: #e8eaed;
+      --muted: #8b939e;
+      --accent: #4a9eff;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+      line-height: 1.6;
+      padding: 1.5rem 1rem calc(3rem + env(safe-area-inset-bottom));
+    }
+    main { max-width: 44rem; margin: 0 auto; }
+    header { margin-bottom: 1.5rem; }
+    h1 { font-size: 1.125rem; letter-spacing: .04em; }
+    .lead { color: var(--muted); font-size: .8125rem; margin-top: .125rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+      gap: .75rem;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .card img { display: block; width: 100%; height: auto; }
+    .card span {
+      display: block;
+      padding: .4rem .5rem .5rem;
+      font-size: .6875rem;
+      color: var(--muted);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .detail { text-align: center; }
+    .detail img.hero {
+      display: block;
+      width: 100%;
+      max-width: 20rem;
+      margin: 0 auto 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+    }
+    .launch {
+      display: inline-block;
+      padding: .875rem 2rem;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: 999px;
+    }
+    .launch img { display: none; }
+    .note {
+      margin-top: 1.25rem;
+      color: var(--muted);
+      font-size: .8125rem;
+    }
+    .back {
+      display: inline-block;
+      margin-top: 2rem;
+      color: var(--muted);
+      font-size: .8125rem;
+    }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
-  <a-scene
-    mindar-image="imageTargetSrc: ./images/image_andi.mind"
-    color-space="sRGB"
-    renderer="colorManagement: true, physicallyCorrectLights"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-  >
-    <a-assets>
-      <a-asset-item id="model" src="./3d/3d_andi.glb"></a-asset-item>
-    </a-assets>
-
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <a-light type="ambient" intensity="1"></a-light>
-    <a-light type="directional" position="1 2 1" intensity="1"></a-light>
-
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-gltf-model
-        id="card-model"
-        src="#model"
-        position="0 0 0"
-        scale="25 25 25"
-        rotation="180 0 0"
-      ></a-gltf-model>
-    </a-entity>
-  </a-scene>
-
-  <script>
-    document.querySelector('#card-model').addEventListener('model-loaded', function () {
-      const el = this;
-      requestAnimationFrame(function () {
-        const obj = el.object3D;
-        const box = new THREE.Box3();
-
-        // MindARの親エンティティがmatrixWorldをNaNにするため
-        // setFromObject（ワールド行列使用）は使えない。
-        // obj自身のローカル行列だけでバウンディングボックスを計算する。
-        obj.traverse(function(node) {
-          if (!node.isMesh || !node.geometry) return;
-          node.geometry.computeBoundingBox();
-          if (!node.geometry.boundingBox) return;
-
-          const mat = new THREE.Matrix4();
-          let cur = node;
-          while (cur) {
-            cur.updateMatrix();
-            mat.premultiply(cur.matrix);
-            if (cur === obj) break;
-            cur = cur.parent;
-          }
-
-          box.union(node.geometry.boundingBox.clone().applyMatrix4(mat));
-        });
-
-        if (isFinite(box.min.z)) {
-          el.setAttribute('position', { x: 0, y: 0, z: -box.min.z });
-        }
-
-        // BLEND透過マテリアルが同一Z深度に重なるためThree.jsが深度ソートできず
-        // primitive宣言順（逆順）で描画されてしまう。renderOrderを明示的に設定して修正。
-        // モデルのY軸が「前面→背面」の積層方向なので、Y昇順 = 背面から前面の描画順。
-        const meshes = [];
-        obj.traverse(function(node) {
-          if (!node.isMesh || !node.geometry) return;
-          node.geometry.computeBoundingBox();
-          const y = (node.geometry.boundingBox.min.y + node.geometry.boundingBox.max.y) / 2;
-          meshes.push({ node: node, y: y });
-        });
-        meshes.sort(function(a, b) { return a.y - b.y; });
-        meshes.forEach(function(item, i) {
-          item.node.renderOrder = i;
-          if (item.node.material && item.node.material.transparent) {
-            item.node.material.depthWrite = false;
-            item.node.material.depthTest = false;
-          }
-        });
-      });
-    });
-  </script>
+  <main id="app"></main>
+  <script src="./cards.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
