@@ -20,6 +20,7 @@ $i = 0
 foreach ($model in $models) {
     $i++
     $dst = Join-Path $outDir ($model.BaseName + ".usdz")
+    if (Test-Path $dst) { Remove-Item $dst }
     & $Blender -b --factory-startup --python-exit-code 1 --python $script -- $model.FullName $dst $TargetSize > $null 2>&1
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $dst)) {
         $failed += $model.BaseName

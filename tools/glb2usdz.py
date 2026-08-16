@@ -220,6 +220,8 @@ def main():
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     result = bpy.ops.wm.usd_export(**export_kwargs(dst))
     print("export %s" % (result,))
+    if "FINISHED" not in result:
+        raise SystemExit("EXPORT: usd_export did not finish, returned %s" % (result,))
 
 
 main()
