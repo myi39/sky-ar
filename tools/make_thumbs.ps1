@@ -22,12 +22,14 @@ foreach ($file in $files) {
     try {
         $h = [int][Math]::Round($src.Height * ($Width / $src.Width))
         $bmp = New-Object System.Drawing.Bitmap $Width, $h
-        $g = [System.Drawing.Graphics]::FromImage($bmp)
-        $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-        $g.DrawImage($src, 0, 0, $Width, $h)
-        $g.Dispose()
-        $bmp.Save($dst, $codec, $params)
-        $bmp.Dispose()
+        try {
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            try {
+                $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+                $g.DrawImage($src, 0, 0, $Width, $h)
+            } finally { $g.Dispose() }
+            $bmp.Save($dst, $codec, $params)
+        } finally { $bmp.Dispose() }
     } finally { $src.Dispose() }
 }
 
