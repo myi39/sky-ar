@@ -40,24 +40,24 @@
 <body>
   <main>
     <h1>USDZ 変換検証</h1>
-    <p class="sub">01_Mob / Blender 5.1 で変換 / 実寸 10.3 × 15.0 cm / <strong>v2</strong></p>
+    <p class="sub">01_Mob / Blender 5.1 で変換 / 実寸 10.3 × 15.0 cm / <strong>v3</strong></p>
 
-    <a rel="ar" href="./3d/01_Mob.usdz?v=2">
+    <a rel="ar" href="./3d/01_Mob.usdz?v=3">
       <img src="./images/01_Mob_front.jpg" alt="01_Mob のカード画像">
     </a>
 
     <p class="hint">画像をタップすると AR Quick Look が開きます。</p>
 
     <ol>
-      <li><strong>透明部分が完全に透明か</strong>（v2 の変更点）</li>
-      <li>キラキラの見え方が寂しくなっていないか（発光を切ったため）</li>
-      <li>色が暗くなりすぎていないか</li>
-      <li>レイヤーの前後関係は v1 のまま正しいか</li>
+      <li><strong>うっすら残っていた板が完全に消えたか</strong></li>
+      <li>背景と裏面の質感（反射）は残っているか</li>
+      <li>キラキラの輪郭がギザついていないか（二値化はしていないので出ないはず）</li>
     </ol>
 
     <p class="hint">
-      v2 の変更：キラキラの板にかかっていた白い発光（emission）を除去。
-      全マテリアルの鏡面反射を 0、粗さを 1.0 に。
+      v3 の変更：透明が過半のレイヤー（キラキラ・キャラ本体）だけ
+      <code>ior</code> を 1.5 → 1.0 にして反射率をゼロに。
+      背景・裏面・側面は 1.5 のまま反射を維持。
     </p>
   </main>
 </body>
