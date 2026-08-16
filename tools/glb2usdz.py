@@ -146,31 +146,42 @@ def tune_materials(front_to_back):
         print("  %d %-12s %s" % (index, mat.name[:12], "MATTE" if matte else "glossy"))
 
 
+# Spec-mandated: absence means this Blender build cannot produce a
+# conformant USDZ, so a missing name is a hard error, not a skip.
+REQUIRED_EXPORT_SETTINGS = {
+    "generate_preview_surface": True,
+    "export_textures_mode": "NEW",
+    "usdz_downscale_size": "KEEP",
+    # AR Quick Look expects Y-up in meters; Blender authors Z-up.
+    "convert_orientation": True,
+    "export_global_up_selection": "Y",
+    "export_global_forward_selection": "NEGATIVE_Z",
+    "convert_scene_units": "METERS",
+}
+
+# Defaults-hardening only; fine to skip if this Blender build lacks them.
+BEST_EFFORT_EXPORT_SETTINGS = {
+    "selected_objects_only": False,
+    "export_animation": False,
+    "export_materials": True,
+    "relative_paths": False,
+    "convert_world_material": False,
+}
+
+
 def export_kwargs(dst):
     names = set(bpy.ops.wm.usd_export.get_rna_type().properties.keys())
+    missing = sorted(key for key in REQUIRED_EXPORT_SETTINGS if key not in names)
+    if missing:
+        raise SystemExit("EXPORT: required settings missing from this Blender build: %s"
+                         % ", ".join(missing))
     kwargs = {"filepath": dst}
-    wanted = {
-        "selected_objects_only": False,
-        "export_animation": False,
-        "export_materials": True,
-        "generate_preview_surface": True,
-        "relative_paths": False,
-        "convert_world_material": False,
-    }
-    for key, value in wanted.items():
+    kwargs.update(REQUIRED_EXPORT_SETTINGS)
+    for key, value in BEST_EFFORT_EXPORT_SETTINGS.items():
         if key in names:
             kwargs[key] = value
-    if "export_textures_mode" in names:
-        kwargs["export_textures_mode"] = "NEW"
-    if "usdz_downscale_size" in names:
-        kwargs["usdz_downscale_size"] = "KEEP"
-    # AR Quick Look expects Y-up in meters; Blender authors Z-up.
-    if "convert_orientation" in names:
-        kwargs["convert_orientation"] = True
-        kwargs["export_global_up_selection"] = "Y"
-        kwargs["export_global_forward_selection"] = "NEGATIVE_Z"
-    if "convert_scene_units" in names:
-        kwargs["convert_scene_units"] = "METERS"
+    applied = ", ".join("%s=%r" % (key, kwargs[key]) for key in sorted(kwargs) if key != "filepath")
+    print("export settings: %s" % applied)
     return kwargs
 
 
