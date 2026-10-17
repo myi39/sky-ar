@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 一覧・個別ページの描画やプラットフォーム判定、リンクの組み立てはローカルの静的サーバーで確認できる。一覧・個別ページは `getUserMedia` を呼ばず、カメラは OS の AR ビューアが扱うため、HTTPS は必須ではない。
 
-**`scan.html` だけは HTTPS が必須。** カメラ映像を `getUserMedia` で読むため、安全なコンテキスト（HTTPS または `localhost`）でないと動かない。`/serve` で配信した `http://<Tailscale の IP>:8000/` を iPhone で開いても、カメラは使えない。PC の `localhost` であれば、ヘッドレスブラウザに偽のカメラ映像を流して判定を確かめられる。
+**`scan.html` だけは HTTPS が必須。** カメラ映像を `getUserMedia` で読むため、安全なコンテキスト（HTTPS または `localhost`）でないと動かない。`/serve` で配信した `http://<Tailscale の IP>:8000/` を iPhone で開いても、カメラは使えない。`/serve` に `-Https` を付けると、Tailscale Serve 経由で `https://<マシン名>.<tailnet>.ts.net/scan.html` として開けるので、push せずに実機で確認できる。PC の `localhost` であれば、ヘッドレスブラウザに偽のカメラ映像を流して判定を確かめられる。
 
 一方、AR Quick Look（iPhone）・Scene Viewer（Android）が実際に起動して設置まで動くかは実機でしか確認できない。一覧・個別ページは、ローカルサーバーを同じネットワーク上の端末から開けばよく、GitHub Pages である必要はない。公開先は GitHub Pages（https://myi39.github.io/sky-ar/）。
 
