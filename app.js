@@ -25,44 +25,20 @@ function renderList(root) {
   root.appendChild(grid);
 }
 
-function platform() {
-  const ua = navigator.userAgent;
-  // iPadOS 13+ reports itself as a Mac, so check for touch as well.
-  if (/iPad|iPhone|iPod/.test(ua) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
-    return 'ios';
-  }
-  if (/Android/.test(ua)) return 'android';
-  return 'other';
-}
-
 function arLink(id) {
-  const os = platform();
+  const href = arUrl(id);
+  if (!href) return null;
 
-  if (os === 'ios') {
+  if (platform() === 'ios') {
     // AR Quick Look requires the anchor to carry rel="ar" and to contain
     // exactly one child element, which must be an <img>.
-    return el('a', { className: 'launch', rel: 'ar', href: './3d/usdz/' + id + '.usdz' }, [
+    return el('a', { className: 'launch', rel: 'ar', href: href }, [
       el('img', { src: './images/thumb/' + id + '.jpg', alt: '' }),
       document.createTextNode('AR')
     ]);
   }
 
-  if (os === 'android') {
-    // Scene Viewer needs an absolute URL for the model.
-    const model = new URL('./3d/glb/' + id + '.glb', location.href).href;
-    const fallback = encodeURIComponent(location.href);
-    const intent =
-      'intent://arvr.google.com/scene-viewer/1.0' +
-      '?file=' + encodeURIComponent(model) +
-      '&mode=ar_only' +
-      '#Intent;scheme=https;package=com.google.ar.core;' +
-      'action=android.intent.action.VIEW;' +
-      'S.browser_fallback_url=' + fallback + ';end;';
-    return el('a', { className: 'launch', href: intent, textContent: 'AR' });
-  }
-
-  return null;
+  return el('a', { className: 'launch', href: href, textContent: 'AR' });
 }
 
 function renderDetail(root, id) {

@@ -12,8 +12,18 @@
 https://myi39.github.io/sky-ar/?c=01_Mob
 ```
 
-iPhone は AR Quick Look、Android は Scene Viewer が開く。AR の起動には
-ユーザーのタップが必要で、ページを開いた瞬間に自動起動することはできない。
+iPhone は AR Quick Look、Android は Scene Viewer が開く。iPhone では
+`.usdz` の URL を直接開いても AR Quick Look が起動する（例:
+`https://myi39.github.io/sky-ar/3d/usdz/01_Mob.usdz`）。
+
+## カメラでスキャン
+
+```
+https://myi39.github.io/sky-ar/scan.html
+```
+
+「スキャン開始」を押してカードを枠に合わせると、カードを識別してそのまま AR が開く。
+カメラを使うため HTTPS でのみ動く。
 
 ## NFC タグ
 
