@@ -48,10 +48,9 @@ let stream = null;
 let timer = null;
 let streakId = null;
 let streak = 0;
-
-function cardTitle(id) {
-  return id.replace(/^\d+_/, '');
-}
+let action = null;
+let arPending = false;
+let leftForAr = false;
 
 // Draw a region of source at w x h and sum RGB into CELL x CELL fine cells.
 function fineCells(source, sx, sy, sw, sh, w, h) {
@@ -221,6 +220,23 @@ function tick() {
   if (streak >= STREAK) found(streakId);
 }
 
+// Every state is one line of text and at most one button; only scanning
+// shows the camera and the guide.
+function show(text, label, onClick, scanning) {
+  document.body.classList.toggle('scanning', !!scanning);
+  statusEl.textContent = text || '';
+  statusEl.hidden = !text;
+  startBtn.textContent = label || '';
+  startBtn.hidden = !label;
+  action = onClick || null;
+}
+
+function idle() {
+  arPending = false;
+  leftForAr = false;
+  show('', 'カードを読み取る', start);
+}
+
 function stop() {
   clearInterval(timer);
   timer = null;
@@ -234,21 +250,14 @@ function stop() {
 
 function found(id) {
   stop();
-  startBtn.textContent = 'もう一度スキャン';
-  startBtn.hidden = false;
-
-  const url = arUrl(id);
-  if (!url) {
-    statusEl.textContent = cardTitle(id) + '（AR 表示は iPhone / Android でのみ利用できます）';
-    return;
-  }
-  statusEl.textContent = cardTitle(id) + ' を表示します';
-  location.href = url;
+  show('AR モデルを読み込み中…');
+  arPending = true;
+  location.href = arUrl(id);
 }
 
 async function start() {
-  startBtn.hidden = true;
-  statusEl.textContent = 'カードを枠に合わせてください';
+  arPending = false;
+  show('カードを枠に合わせてください', null, null, true);
   try {
     stream = await navigator.mediaDevices.getUserMedia({
       audio: false,
@@ -258,21 +267,39 @@ async function start() {
     await video.play();
   } catch (e) {
     stop();
-    statusEl.textContent = 'カメラを使えませんでした（' + e.name + '）';
-    startBtn.hidden = false;
+    show('カメラを使えませんでした', 'カードを読み取る', start);
+    if (debug) debugEl.textContent = e.name;
     return;
   }
   timer = setInterval(tick, INTERVAL_MS);
 }
 
+// Back from the AR viewer: it hides this page while open (AR Quick Look on
+// iOS) or the browser restores the page from its cache (Scene Viewer).
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) {
+    if (arPending) leftForAr = true;
+  } else if (leftForAr) {
+    idle();
+  }
+});
+window.addEventListener('pageshow', function (e) {
+  if (e.persisted && arPending) idle();
+});
+
 async function main() {
   debugEl.hidden = !debug;
 
+  if (platform() === 'other') {
+    show('iPhone / Android で開いてください');
+    return;
+  }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    statusEl.textContent = 'カメラは HTTPS で開いたときだけ使えます';
+    show('HTTPS で開いてください');
     return;
   }
 
+  show('準備中…');
   try {
     const imgs = await loadAll(IDS.map(function (id) {
       return './images/thumb/' + id + '.jpg';
@@ -282,13 +309,15 @@ async function main() {
       return fingerprint(fine, REF_W / CELL, 0, 0);
     });
   } catch (e) {
-    statusEl.textContent = '見本画像を読み込めませんでした（' + e.message + '）';
+    show('読み込みに失敗しました', '再読み込み', function () { location.reload(); });
+    if (debug) debugEl.textContent = e.message;
     return;
   }
 
-  statusEl.textContent = 'カードをスキャンします';
-  startBtn.hidden = false;
+  idle();
 }
 
-startBtn.addEventListener('click', start);
+startBtn.addEventListener('click', function () {
+  if (action) action();
+});
 main();

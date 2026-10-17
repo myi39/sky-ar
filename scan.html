@@ -39,6 +39,8 @@
       box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .55);
     }
     #guide.hit { border-color: var(--accent); }
+    body:not(.scanning) video,
+    body:not(.scanning) #guide { display: none; }
     #panel {
       position: fixed;
       left: 0;
@@ -46,6 +48,13 @@
       bottom: 0;
       padding: 1rem 1rem calc(1.5rem + env(safe-area-inset-bottom));
       text-align: center;
+    }
+    /* Outside scanning there is nothing else on screen, so sit in the middle. */
+    body:not(.scanning) #panel {
+      top: 50%;
+      bottom: auto;
+      padding-bottom: 1rem;
+      transform: translateY(-50%);
     }
     #status { font-size: .9375rem; }
     #debug { margin-top: .25rem; font-size: .75rem; color: var(--muted); font-family: ui-monospace, monospace; }
@@ -66,7 +75,7 @@
   <video id="video" playsinline muted></video>
   <div id="guide"></div>
   <div id="panel">
-    <p id="status">読み込み中…</p>
+    <p id="status">準備中…</p>
     <p id="debug" hidden></p>
     <button id="start" type="button" hidden>スキャン開始</button>
   </div>
